@@ -16,18 +16,13 @@ pdf("behproc_fig1_pop_curves_simavg.pdf" , width=10 , height=8)
 
 par(mfrow=c(4, 5) , mai=c(0.5,0.5,0.5,0.5) , oma=c(6,8,4,0.5) , cex=0.5 , mar=c(0,0,0,0))
 
-#betalist <- c(1, 0 , 0 , 1) #strength of payoff bias
 betalist <- c(0, 0 , 0 , 1.5) #strength of payoff bias
-#paylist <- c(0.32, 0.24, 0.16, 0.08)
-#freqlist <- c(0,1,1.3,1) #strength of frequency dependence
 freqlist <- c(0,1,1.5,0) #strength of frequency dependence
-#gammalist <- c(0,1,1,1)
-gammalist <- c(0,1,1,1)
-nsims <- 500
-
-prt1initlist <-c(0.99999999999999999999,0.7,0.50,0.3,0.00000000000000000001) #initial number o
-
-prt2initlist <- 1 - prt1initlist 
+gammalist <- c(0,1,1,1) #weight given to social learning between 0 amd 1
+nsims <- 500 #number of simulations
+nbouts <- 30 #rounds foraged
+prt1initlist <-c(0.99999999999999999999,0.7,0.50,0.3,0.00000000000000000001) #initial frequency of behav 1
+prt2initlist <- 1 - prt1initlist #initial frequency of behav 2
 Prtech1_100 <- Prtech2_100 <- array(0,c(nbouts,nsims))  ###DIFFERENET
 
 xlabs=c("A=1 , B=0" , "A=0.7 , B=0.3" , "A=0.5 , B=0.5" , "A=0.3 , B=0.7" , "A=0 , B=1")
@@ -38,11 +33,9 @@ for (row in 1:4){
         for(sim in 1:nsims){
         #data sims
         n <- 50 # number of individuals
-        nbouts <- 30 #rounds foraged
         techmeans <- c(10,9) 
         techvar <- c(2,2)
         #parameter sims
-        #fc.sim <- log(.5)               #frequency dependecy parameter
         phi.sim <- 0.25 ## stickiness parameter
         gamma.sim <- gammalist[row] ## weight of social info parameter
         k.lambda <- 1
@@ -60,10 +53,6 @@ for (row in 1:4){
         for ( r in 1:nbouts ) {
             for ( i in 1:n ) {  
                 prtech_i <-  Softmax(k.lambda*AC[i,])
-                #my.bp <- betalist[row]  + beta.p_i[i]  #payoff weight for individual i
-                #my.gam <- logistic( gammalist[row] + gamma.sim_i[i] ) #social info weight for individual i
-                #my.phi <- logistic( phi.sim + phi.sim_i[i] ) #social info weight for individual i
-                #my.fconf <- exp( freqlist[row] + fc.sim_i[i]) 
                 prtech_sp <- c(PS1[r],PS2[r]) #temp value for observed payoffs from t=r-1 to be used @ t=r
                 prtech_su <- c(S1[r],S2[r]) #temp value for observed techs from t=r-1 to be used @ t=r
 
@@ -82,9 +71,7 @@ for (row in 1:4){
 
 
                 } else {
-                    #prtech_i <-  Softmax(k.lambda*AC[i,]) ##makes it attraction scores
-                    #prtech_s <- c(prt1initlist[column],prt2initlist[column])#makes probs starting probs at 1st time step
-                    #prtech <- (1-gammalist[row])*prtech_i + gammalist[row]*prtech_s
+
                     prtech <- c(prt1initlist[column],prt2initlist[column])#makes probs starting probs at 1st time step
                  }
                  Prtech1i <- prtech[1] # prop of inividuals in pop displaying a behavior 1 @ t=2
@@ -107,8 +94,6 @@ for (row in 1:4){
             S1[r+1] <- length( dsim_s$tech[dsim_s$tech==1 & dsim_s$bout==r] )
             S2[r+1] <- length( dsim_s$tech[dsim_s$tech==2 & dsim_s$bout==r] )
 
-            #Prtech1[r] <- ifelse(is.nan(mean(dsim_s$Prtech1i[dsim_s$bout==r])) , 0 , is.nan(mean(dsim_s$Prtech1i[dsim_s$bout==r])))
-            #Prtech2[r] <- ifelse(is.nan(mean(dsim_s$Prtech2i[dsim_s$bout==r])) , 0 , is.nan(mean(dsim_s$Prtech2i[dsim_s$bout==r])))
             Prtech1[r] <- S1[r+1]/n
             Prtech2[r] <- S2[r+1]/n
             Prtech1_100[r,sim] <- Prtech1[r]
@@ -190,7 +175,6 @@ if(row==4 & column !=1){
 
     }
 }
-    #title(main=paste("\u03B2p=",betalist[Y],"; \u03C01=",payprop[X],"*(\u03C02)") , cex.main=0.8)
 
 mtext("timestep", side = 1, outer = TRUE, cex = 2, line = 4)
 mtext("frequency of trait in population", side = 2, outer = TRUE, cex = 2, line = 5)
